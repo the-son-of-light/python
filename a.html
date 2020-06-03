@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>简单的promise</title>
+</head>
+<body>
+<script type="text/javascript">
+    //三个常量表示状态
+    const PENDING = 'pending'
+    const RESOLVED = 'resolved'
+    const REJECTED = 'rejected'
+
+    function MyPromise(fn){
+        const that = this;
+        this.status = PENDING
+
+        // value变量用于保存resolve或者reject传入的值
+        this.value = null
+
+        // 用于保存then中的回调，因为执行完Promise时状态可能还在等待中，这时应该把then中的回调保存起来用于状态改变时使用
+        that.resolvedCallbacks = []
+        that.rejectedCallbacks = []
+
+        function resolve(value){
+            // 首先两个函数都得判断当前状态是否为等待中
+            if(that.status === PENDING){
+                that.value = RESOLVED
+                that.value = value
+
+                // 遍历回调函数并执行
+                that.rejectedCallbacks.map(cb=>cb(that.value))
+            }
+        }
+
+        function reject(value){
+            if(that.status === PENDING){
+                that.value = REJECTED
+                that.value = value
+                that.rejectedCallbacks.map(cd=>(that.value))
+            }
+        }
+
+        // 实现如何执行promise中传入的函数
+        try{
+            fn(resolve,reject)
+        }catch(e){
+            reject(e)
+        }
+    }
+
+    // 实现then函数
+    MyPromise.prototype.then = function(onFulfilled,onRejected){
+        const that = this;
+
+        // 判断两个参数是否为函数类型，因为两个参数是可选参数
+        onFulfilled = typeof onFulfilled === 'function'? onFulfilled:v=>v
+        onRejected = typeof onRejected === 'function'? onRejected:e=>throw e
+
+        // 当状态不是等待状态时，就去执行相对应的函数。如果状态时等待的话，就去回调函数中push函数
+        if(that.status === PENDING){
+            that.resolvedCallbacks.push(onFulfilled)
+            that.rejectedCallbacks.push(onRejected)
+        }
+        if(that.status === RESOLVED){
+            onFulfilled(that.value)
+        }
+        if(that.status === REJECTED){
+            onRejected(that.value)
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
